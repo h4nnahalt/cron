@@ -1,0 +1,52 @@
+Creación de tareas cron
+
+https://youtu.be/SIyO3zYexQQ
+con el demonio cron podemos ejecutar procesos en el futuro. Asi automatizaremos rutinas ademas de poder configurarlo para que nos muestre grabatorios.
+
+hay otras herramientas parecidas a cron como en que se usa para ejecutar tareas de forma excepcional y anacron para asegurar de que tareas como la rotación de registros se ha efectuado, incluido con el ordenador agregado. Existen tareas cron a nivel de usuario y a nivel de sistema.
+
+Crear tareas cron del sistema-->
+
+en el archivo / etc / crontab y tienen este aspecto :
+
+# Example of job definition: # .---------------- minute (0 - 59) # | .------------- hour (0 - 23) # | | .---------- day of month (1 - 31) # | | | .------- month (1 - 12) OR jan,feb,mar,apr ... # | | | | .---- day of week (0 - 6) (Sunday=0 or 7) OR sun,mon,tue,wed,thu,> # | | | | | # * * * * * user-name command to be executed 17 * * * * root cd / && run-parts --report /etc/cron.hourly
+
+Para crear una nueva área cron se crea un script en el propio director / etc / cron / intervalo, por ejemplo, copias de seguridad programada, etc
+
+# ejecute una copia de seguridad a las 5 a.m. cada semana con: 0 5 * * 1 tar -zcf / var / backups / home.tgz / home /
+
+El propietario de los directorios que almacenan tareas cron deberia de ser root, si un usuario normal pudiera escribir en uno de estos directorios, podrian otorgarse privilegios de root y ganar acceso al sistema modificando el directorio cron, la siguiente vez que esa tarea se ejecutara los usuarios tendrian acceso administrativo completo al sistema.
+
+Crear tareas cron del usuario-->
+
+se emplea la utilidad crontab que no debe confundirse con el archivo de configuración /etc/crontab. Tendria este aspecto:
+
+crontab [-u usuario] [-l | -e | -r] [archivo]
+
+Con la opcion -u crontab modifica la tarea cron asociada al usuario actual -l muestra la tarea cron actual -r elimina dicha tarea -e abre vi.
+
+los archivos de tareas cron se almacenan en /var/spool/cron, /var/spool/cron/tabs ó /var/spool/cron/crontabs. no se deberian de modificar directamente los archivos de este directorio sino emplear crontab para realizar cambios.
+
+El acceso a cron se puede restringir:
+
+-Permisos de ejecucion no en todas las distribuciones se modifican asi, pero algunas lo permiten, se puede consultar los permisos y el propietario del grupo de los archivosen /usr/sbin/cron y en /usr/bin/crontab.
+
+-Lista de usuarios permitidos el archivo /etc/cron.allow contiene una lista con los usuarios a los que se le permite el acceso a cron. si este archivo no esta presente, todo el mundo podra utilizar cron asumiendo que no se haya restringido el acceso mediante permisos de ejecucion o lista de usuarios rechazados.
+
+-Lista de usuarios rechazados en el archivo /etc/cron.deny contiene los usuarios a los que se les ha denegado el acceso a cron explicitamente.
+
+Posibles problemas
+
+No se deben destruir medidas de seguridad que se hayan podido establecer por algun motivo. Si no se estan ejecutando tareas cron del sistema, quiza el deminio no se haya iniciado o se ha colapsado, para buscar evidencias hay que mirar en los archivos de registro ejecutando por ejemplo:
+
+cd / &&run-parts--report/etc/cron.hourly
+
+usando el comando ps se puede comprobar si esta funcionando ó tambien comprobar la configuracion en SysV o Upstart
+
+tambien se podria crear un cron fantasma date>/tmp/date.txt utilizado como tarea cron, para ver si se esta ejecutando una tarea
+
+Hay que tener cuidado al hacer esto, la tarea se puede ejecutar inmediatamente pero si se estan teniendo problemas con una ejecucion cron mensual o que es sensible al tiempo, hay que eliminar el script mientras se recuelve esto.
+
+Siempre hay qur ser consciente de los permisos al trabajar con cron, a veces la tarea no funciona por que la ejecuta el usuario equivocado
+
+El script esta hecho en debain, parrot puede que la sintaxis varie un poco entre las distintas distribuciones.
